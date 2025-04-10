@@ -1,1 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Work Tracker</title>
+</head>
+<body>
+  <h1>My Work Tracker</h1>
+  <button onclick="clockIn()">Clock In</button>
+  <button onclick="clockOut()">Clock Out</button>
+  <div id="status">Status: Not Checked In</div>
+
+  <script>
+    function clockIn() {
+      const now = new Date().toLocaleTimeString();
+      document.getElementById("status").innerText = "Clocked in at " + now;
+    }
+
+    function clockOut() {
+      const now = new Date().toLocaleTimeString();
+      document.getElementById("status").innerText = "Clocked out at " + now;
+    }
+  </script>
+</body>
+</html>
 
