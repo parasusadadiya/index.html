@@ -1,1 +1,53 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  width: 80%;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc;
+}
+
+input[type="time"], input[type="number"] {
+  padding: 5px;
+  margin: 10px;
+  width: 150px;
+}
+
+#clock-section {
+  text-align: center;
+}
+
+#weekly-summary {
+  text-align: center;
+  margin-top: 20px;
+}
+
+h3 {
+  margin-top: 20px;
+}
 
