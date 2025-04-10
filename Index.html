@@ -1,25 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>My Work Tracker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Work Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    button {
+      padding: 10px 15px;
+      margin: 10px 5px 0 0;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <h1>My Work Tracker</h1>
-  <button onclick="clockIn()">Clock In</button>
-  <button onclick="clockOut()">Clock Out</button>
-  <div id="status">Status: Not Checked In</div>
+  <div class="container">
+    <h2>Work Tracker</h2>
+    <button onclick="clockIn()">Clock In</button>
+    <button onclick="clockOut()">Clock Out</button>
+    <div id="status">Status: Not checked in</div>
+    <div id="timeDisplay"></div>
+  </div>
 
   <script>
+    let clockInTime = null;
+
     function clockIn() {
-      const now = new Date().toLocaleTimeString();
-      document.getElementById("status").innerText = "Clocked in at " + now;
+      clockInTime = new Date();
+      document.getElementById("status").innerText = "Status: Checked In";
+      document.getElementById("timeDisplay").innerText = "Clock In: " + clockInTime.toLocaleTimeString();
     }
 
     function clockOut() {
-      const now = new Date().toLocaleTimeString();
-      document.getElementById("status").innerText = "Clocked out at " + now;
+      if (!clockInTime) {
+        alert("Please clock in first.");
+        return;
+      }
+      const clockOutTime = new Date();
+      const hoursWorked = ((clockOutTime - clockInTime) / (1000 * 60 * 60)).toFixed(2);
+      document.getElementById("status").innerText = "Status: Checked Out";
+      document.getElementById("timeDisplay").innerText = 
+        `Clock In: ${clockInTime.toLocaleTimeString()} \nClock Out: ${clockOutTime.toLocaleTimeString()} \nTotal Hours: ${hoursWorked}`;
     }
   </script>
 </body>
 </html>
-
