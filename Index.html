@@ -7,29 +7,47 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f0f2f5;
       padding: 20px;
-      background-color: #f0f0f0;
     }
     .container {
-      max-width: 400px;
+      max-width: 500px;
       margin: auto;
       background: #fff;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
     }
     button {
-      padding: 10px 15px;
-      margin: 10px 5px 0 0;
-      border: none;
-      border-radius: 5px;
+      padding: 10px 20px;
+      margin-right: 10px;
       background-color: #007bff;
       color: white;
-      font-size: 16px;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
     }
-    #status {
-      margin-top: 20px;
+    button:hover {
+      background-color: #0056b3;
+    }
+    #summary, #weekly-summary {
+      margin-top: 15px;
       font-weight: bold;
     }
   </style>
@@ -37,19 +55,38 @@
 <body>
   <div class="container">
     <h2>Work Tracker</h2>
+
     <button onclick="clockIn()">Clock In</button>
     <button onclick="clockOut()">Clock Out</button>
+
+    <label for="wage">Hourly Wage (₹):</label>
+    <input type="number" id="wage" placeholder="Enter your wage" />
+
+    <label for="expense">Today's Expense (₹):</label>
+    <input type="number" id="expense" placeholder="Enter any expense" />
+
     <div id="status">Status: Not checked in</div>
     <div id="timeDisplay"></div>
+    <div id="summary"></div>
+    <div id="weekly-summary"></div>
+
+    <button onclick="downloadCSV()">Download Weekly Report</button>
   </div>
 
   <script>
     let clockInTime = null;
+    let weeklyData = [];
+
+    function getCurrentDateStr() {
+      const now = new Date();
+      return now.toISOString().split('T')[0];
+    }
 
     function clockIn() {
       clockInTime = new Date();
       document.getElementById("status").innerText = "Status: Checked In";
       document.getElementById("timeDisplay").innerText = "Clock In: " + clockInTime.toLocaleTimeString();
+      document.getElementById("summary").innerText = "";
     }
 
     function clockOut() {
@@ -57,11 +94,75 @@
         alert("Please clock in first.");
         return;
       }
+
       const clockOutTime = new Date();
       const hoursWorked = ((clockOutTime - clockInTime) / (1000 * 60 * 60)).toFixed(2);
+
+      const wagePerHour = parseFloat(document.getElementById("wage").value);
+      const expense = parseFloat(document.getElementById("expense").value) || 0;
+
+      let totalWage = 0;
+      if (!isNaN(wagePerHour)) {
+        totalWage = (wagePerHour * hoursWorked).toFixed(2);
+      }
+
+      const totalAmount = (parseFloat(totalWage) + expense).toFixed(2);
+
       document.getElementById("status").innerText = "Status: Checked Out";
       document.getElementById("timeDisplay").innerText = 
-        `Clock In: ${clockInTime.toLocaleTimeString()} \nClock Out: ${clockOutTime.toLocaleTimeString()} \nTotal Hours: ${hoursWorked}`;
+        `Clock In: ${clockInTime.toLocaleTimeString()} \nClock Out: ${clockOutTime.toLocaleTimeString()}`;
+
+      document.getElementById("summary").innerText = 
+        `Hours Worked: ${hoursWorked} hrs\nWage: ₹${totalWage}\nExpense: ₹${expense}\nTotal: ₹${totalAmount}`;
+
+      // Save to weekly data
+      const date = getCurrentDateStr();
+      weeklyData.push({
+        date,
+        hoursWorked,
+        wage: totalWage,
+        expense: expense.toFixed(2),
+        total: totalAmount
+      });
+
+      updateWeeklySummary();
+      clockInTime = null; // reset
+    }
+
+    function updateWeeklySummary() {
+      let totalWage = 0, totalExpense = 0, total = 0;
+      const today = new Date();
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1)); // Monday as start
+
+      const summaryList = weeklyData.filter(entry => {
+        const entryDate = new Date(entry.date);
+        return entryDate >= startOfWeek && entryDate <= today;
+      });
+
+      summaryList.forEach(item => {
+        totalWage += parseFloat(item.wage);
+        totalExpense += parseFloat(item.expense);
+        total += parseFloat(item.total);
+      });
+
+      document.getElementById("weekly-summary").innerText =
+        `\nWeekly Summary (Mon to Today):\nWage: ₹${totalWage.toFixed(2)}\nExpenses: ₹${totalExpense.toFixed(2)}\nTotal: ₹${total.toFixed(2)}`;
+    }
+
+    function downloadCSV() {
+      let csv = "Date,Hours Worked,Wage,Expense,Total\n";
+      weeklyData.forEach(row => {
+        csv += `${row.date},${row.hoursWorked},₹${row.wage},₹${row.expense},₹${row.total}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "weekly_report.csv";
+      a.click();
+      window.URL.revokeObjectURL(url);
     }
   </script>
 </body>
